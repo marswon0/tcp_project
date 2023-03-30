@@ -10,6 +10,7 @@ public:
 
     bool start();
     void stop();
+    void handleClient();
 
 private:
     int server_fd;

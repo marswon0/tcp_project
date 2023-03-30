@@ -47,4 +47,30 @@ void TcpServer::stop() {
     running = false;
 }
 
+void TcpServer::handleClient(int client_fd) {
+    constexpr size_t buffer_length = 1024;
+    char buffer[buffer_length];
+
+    while (running) {
+        ssize_t bytes_received = recv(client_fd, buffer, buffer_length, 0);
+        if (bytes_received <= 0) {
+            if (bytes_received == -1) {
+                std::cerr << "Error receiving message from client: " << strerror(errno) << std::endl;
+            }
+            break;
+        }
+
+        std::cout << "Received message from client: " << std::string(buffer, bytes_received) << std::endl;
+
+        // Echo the message back to the client
+        ssize_t bytes_sent = send(client_fd, buffer, bytes_received, 0);
+        if (bytes_sent == -1) {
+            std::cerr << "Error sending message to client: " << strerror(errno) << std::endl;
+            break;
+        }
+    }
+
+    close(client_fd);
+}
+
 #endif

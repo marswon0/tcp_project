@@ -11,7 +11,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    const char *server_ip = argv[1];
+    char *server_ip = argv[1];
     int server_port = atoi(argv[2]);
 
     TcpClient client(server_ip, server_port);
@@ -28,11 +28,13 @@ int main(int argc, char *argv[]) {
         std::string message = "Message count: " + std::to_string(message_count);
         client.sendMessage(message.c_str(), message.length());
         std::cout << "Sent: " << message << std::endl;
-
-        if (client.receiveMessage(buffer, BUFFER_SIZE)) {
-            std::cout << "Received: " << buffer << std::endl;
+	
+        std::string server_respond;
+        if (client.receiveMessage(server_respond)) {
+            std::cout << "Received: " << server_respond << std::endl;
         } else {
             std::cerr << "Error receiving message" << std::endl;
+            break;
         }
 
         message_count++;

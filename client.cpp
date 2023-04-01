@@ -5,8 +5,9 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <cstring>
+#include <string>
 
-TcpClient::TcpClient(const char* server_ip, int server_port)
+TcpClient::TcpClient(char* server_ip, int server_port)
     : client_fd(-1), server_ip(server_ip), server_port(server_port) {
 }
 
@@ -36,4 +37,29 @@ bool TcpClient::connectToServer() {
         return false;
     }
 
-    return
+    return true;
+}
+
+bool TcpClient::sendMessage(const char* message, size_t message_length) {
+    ssize_t bytes_sent = send(client_fd, message, message_length, 0);
+    if (bytes_sent == -1) {
+        std::cerr << "Error sending message: " << strerror(errno) << std::endl;
+        return false;
+    }
+    return true;
+}
+
+bool TcpClient::receiveMessage(std::string& message) {
+    constexpr size_t buffer_length = 1024;
+    char buffer[buffer_length];
+
+    ssize_t bytes_received = recv(client_fd, buffer, buffer_length, 0);
+    if (bytes_received == -1) {
+        std::cerr << "Error receiving message: " << strerror(errno) << std::endl;
+        return false;
+    }
+
+    message.assign(buffer, bytes_received);
+    std::cout << "Server response: " << message << std::endl;
+    return true;
+}

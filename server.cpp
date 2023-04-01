@@ -47,6 +47,38 @@ void TcpServer::stop() {
     running = false;
 }
 
+
+int TcpServer::acceptClient() {
+    if (server_fd == -1) {
+        std::cerr << "Server not started." << std::endl;
+        return -1;
+    }
+
+    sockaddr_in client_addr;
+    socklen_t client_addr_len = sizeof(client_addr);
+
+    int client_fd = accept(server_fd, reinterpret_cast<sockaddr*>(&client_addr), &client_addr_len);
+    if (client_fd == -1) {
+        std::cerr << "Error accepting client connection: " << strerror(errno) << std::endl;
+        return -1;
+    }
+
+    return client_fd;
+}
+
+
+void TcpServer::closeClient(int client_fd) {
+    if (client_fd == -1) {
+        std::cerr << "Invalid client file descriptor." << std::endl;
+        return;
+    }
+
+    if (close(client_fd) == -1) {
+        std::cerr << "Error closing client connection: " << strerror(errno) << std::endl;
+    }
+}
+
+
 void TcpServer::handleClient(int client_fd) {
     constexpr size_t buffer_length = 1024;
     char buffer[buffer_length];
@@ -73,4 +105,7 @@ void TcpServer::handleClient(int client_fd) {
     close(client_fd);
 }
 
-#endif
+void TcpServer::handleClientThread(int client_fd) {
+    this->handleClient(client_fd);
+    this->closeClient(client_fd);
+}

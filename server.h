@@ -2,6 +2,7 @@
 #define SERVER_H
 
 #include <netinet/in.h>
+#include <thread>
 
 class TcpServer {
 public:
@@ -10,7 +11,10 @@ public:
 
     bool start();
     void stop();
-    void handleClient();
+    int acceptClient();
+    void closeClient(int client_fd);
+    void handleClient(int client_fd);
+    void handleClientThread(int client_fd);
 
 private:
     int server_fd;
